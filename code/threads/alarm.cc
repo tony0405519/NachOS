@@ -46,22 +46,68 @@ Alarm::Alarm(bool doRandom)
 //	interrupts.  In this case, we can safely halt.
 //----------------------------------------------------------------------
 
-void 
-Alarm::CallBack() 
-{
+void Alarm::CallBack() {// 週期性的打斷CPU
     Interrupt *interrupt = kernel->interrupt;
     MachineStatus status = interrupt->getStatus();
-    
+    bool woken = _sleepList.PutToReady(); // 每次都要檢查是否有程式碼已經休眠結束，可以放入Ready Queue
     kernel->currentThread->setPriority(kernel->currentThread->getPriority() - 1);
-    if (status == IdleMode) {	// is it time to quit?
-        if (!interrupt->AnyFutureInterrupts()) {
-	    timer->Disable();	// turn off the timer
-	}
-    } else {			// there's someone to preempt
+    if (status == IdleMode && !woken && _sleepList.IsEmpty()) {// is it time to quit?
+        if (!interrupt->AnyFutureInterrupts()) {// 有任何在排隊的interrupts嗎？
+            timer->Disable();   // turn off the timer
+        }
+    } else {                    // there's someone to preempt
 	if(kernel->scheduler->getSchedulerType() == RR ||
             kernel->scheduler->getSchedulerType() == Priority ) {
 		interrupt->YieldOnReturn();
 	}
     }
 }
+
+//----------------------------------------------------------------------
+// Alarm::WaitUntil
+//      這是Sleep(int)被呼叫後，經過exception.cc後，的進入點
+//
+//      會把當前正在執行的thread記錄下來並送入休眠狀態
+//
+//----------------------------------------------------------------------
+void Alarm::WaitUntil(int x) {
+    //關中斷，不讓其他程式碼能夠進入
+    IntStatus oldLevel = kernel->interrupt->SetLevel(IntOff);
+    //將目前要執行的thread放入休眠
+    Thread* t = kernel->currentThread;
+    cout << "Alarm::WaitUntil go sleep" << endl;
+    _sleepList.PutToSleep(t, x);
+    //開中斷
+    kernel->interrupt->SetLevel(oldLevel);
+}
+
+bool sleepList::IsEmpty() {
+    return _threadlist.size() == 0;
+}
+
+void sleepList::PutToSleep(Thread*t, int x) {
+    ASSERT(kernel->interrupt->getLevel() == IntOff);// 檢查是否interrupt已經disabled
+    _threadlist.push_back(sleepThread(t, _current_interrupt + x));// 將該thread放入列表中(Waiting Queue)
+    t->Sleep(false);// 讓出CPU
+}
+
+bool sleepList::PutToReady() {
+    bool woken = false;
+    _current_interrupt ++;
+    for(std::list<sleepThread>::iterator it = _threadlist.begin();
+        it != _threadlist.end(); ) {
+        if(_current_interrupt >= it->when) {
+            woken = true;
+            cout << "sleepList::PutToReady Thread woken" << endl;
+            kernel->scheduler->ReadyToRun(it->sleeper);
+            it = _threadlist.erase(it);
+        } else {
+            it++;
+        }
+    }
+    return woken;
+}
+
+
+
 
