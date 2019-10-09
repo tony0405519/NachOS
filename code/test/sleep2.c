@@ -5,5 +5,4 @@ main() {
         Sleep(100000);
         PrintInt(10);
     }
-    return 0;
 }
