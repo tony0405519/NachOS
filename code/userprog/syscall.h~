@@ -31,8 +31,6 @@
 #define SC_ThreadYield	10
 #define SC_PrintInt	11
 
-#define SC_Example	13
-
 #ifndef IN_ASM
 
 /* The system call interface.  These are the operations the Nachos
