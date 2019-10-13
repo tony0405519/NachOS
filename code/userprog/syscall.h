@@ -30,7 +30,7 @@
 #define SC_ThreadFork	9
 #define SC_ThreadYield	10
 #define SC_PrintInt	11
-
+#define SC_Sleep	12
 #define SC_Example	13
 
 #ifndef IN_ASM
@@ -128,6 +128,12 @@ void ThreadFork(void (*func)());
  * or not. 
  */
 void ThreadYield();		
+
+/*
+ * Yield and Remove currentThread from readyList until given time,
+ * and put it in to readyList again
+ */
+void Sleep(int number);
 
 void PrintInt(int number);	//my System Call
 
