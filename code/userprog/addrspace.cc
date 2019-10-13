@@ -21,7 +21,7 @@
 //#include "machine.h"
 #include "noff.h"
 
-bool AddrSpace::usedPhyPage[NumPhysPages] = {0};
+bool AddrSpace::usedPhyPage[NumPhysPages] = {FALSE};
 
 //----------------------------------------------------------------------
 // SwapHeader
@@ -63,7 +63,8 @@ AddrSpace::AddrSpace()
 //	pageTable[i].valid = FALSE;
 	pageTable[i].use = FALSE;
 	pageTable[i].dirty = FALSE;
-	pageTable[i].readOnly = FALSE;  
+	pageTable[i].readOnly = FALSE;
+	ASSERT(usedPhyPage[i] == FALSE);
     }
     
     // zero out the entire address space
