@@ -367,6 +367,7 @@ DEBUG(dbgThread, "PARISC");
     machineState[InitialPCState] = (void *)func;
     machineState[InitialArgState] = (void *)arg;
     machineState[WhenDonePCState] = (void *)ThreadFinish;
+DEBUG(dbgThread, "ELSE");
 #endif
 }
 

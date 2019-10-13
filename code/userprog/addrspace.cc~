@@ -18,8 +18,10 @@
 #include "copyright.h"
 #include "main.h"
 #include "addrspace.h"
-#include "machine.h"
+//#include "machine.h"
 #include "noff.h"
+
+bool AddrSpace::usedPhyPage[NumPhysPages] = {0};
 
 //----------------------------------------------------------------------
 // SwapHeader
@@ -27,7 +29,6 @@
 //	object file header, in case the file was generated on a little
 //	endian machine, and we're now running on a big endian machine.
 //----------------------------------------------------------------------
-
 static void 
 SwapHeader (NoffHeader *noffH)
 {
@@ -76,6 +77,11 @@ AddrSpace::AddrSpace()
 
 AddrSpace::~AddrSpace()
 {
+   int i = 0;
+   for(i = 0; i < numPages; i++)
+   {
+        AddrSpace::usedPhyPage[pageTable[i].physicalPage] = false;
+   }
    delete pageTable;
 }
 
@@ -113,7 +119,25 @@ AddrSpace::Load(char *fileName)
 						// to leave room for the stack
     numPages = divRoundUp(size, PageSize);
 //	cout << "number of pages of " << fileName<< " is "<<numPages<<endl;
+    
+// morris add
+pageTable = new TranslationEntry[numPages];
+unsigned int i, j;
+for(i = 0, j = 0; i < numPages; i++)
+{
+	pageTable[i].virtualPage = i;
+	while( j < NumPhysPages && AddrSpace::usedPhyPage[j] == true) j++;
+	AddrSpace::usedPhyPage[j] = true;
+	pageTable[i].physicalPage = j;
+	pageTable[i].valid = true;
+	pageTable[i].use = false;
+	pageTable[i].dirty = false;
+	pageTable[i].readOnly = false;
+}
+// end morris add
+
     size = numPages * PageSize;
+
 
     ASSERT(numPages <= NumPhysPages);		// check we're not trying
 						// to run anything too big --
@@ -156,6 +180,8 @@ AddrSpace::Execute(char *fileName)
     if (!Load(fileName)) {
 	cout << "inside !Load(FileName)" << endl;
 	return;				// executable not found
+    } else {
+	cout << "Loading Thread: " << fileName << endl;
     }
 
     //kernel->currentThread->space = this;
