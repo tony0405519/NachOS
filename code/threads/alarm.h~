@@ -28,7 +28,8 @@ class Thread;
 
 class SleepingThread : public CallBackObj {
   public:
-    SleepingThread(Thread* t, int waiting);
+    SleepingThread(Thread* t, int waiting):
+		sleeper(t),waitingTime(waiting) {}
     ~SleepingThread() {};
 
     

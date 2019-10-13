@@ -86,10 +86,10 @@ void
 Alarm::WaitUntil(int n)
 {
 	Interrupt *interrupt = kernel->interrupt;
-	IntStatus old = interrupt->SetLevel(IntOff);
+	IntStatus old = interrupt->setStatus(IntOff);
 	SleepingThread * sleepItem = new SleepingThread(kernel->currentThread, n);
 	interrupt->Schedule(sleepItem, n, TimerInt);
 	kernel->currentThread->Sleep(FALSE);
-	interrupt->SetLevel(old);
+	interrupt->setStatus(old);
 }
 
