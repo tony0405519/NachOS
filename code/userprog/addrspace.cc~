@@ -156,8 +156,6 @@ AddrSpace::Execute(char *fileName)
     if (!Load(fileName)) {
 	cout << "inside !Load(FileName)" << endl;
 	return;				// executable not found
-    } else {
-	cout << "Loading Thread: " << fileName << endl;
     }
 
     //kernel->currentThread->space = this;
