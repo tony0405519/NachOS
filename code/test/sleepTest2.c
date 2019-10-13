@@ -6,9 +6,9 @@ int
 main()
 {
 	int i = 0;
-	for(i = 5; i < 20; i++)
+	for(i = 5; i < 10; i++)
 	{
-		Sleep(100000);
+		Sleep(1000000);
 		Example(i);
 		
 	}
