@@ -53,7 +53,7 @@ void
 Timer::CallBack() 
 {
     // invoke the Nachos interrupt handler for this device
-    callPeriodically->CallBack();
+    callPeriodically->CallBack(); // alarm.CallBack();
     
     SetInterrupt();	// do last, to let software interrupt handler
     			// decide if it wants to disable future interrupts
