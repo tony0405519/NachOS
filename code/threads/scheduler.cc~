@@ -24,15 +24,6 @@
 #include "main.h"
 
 //----------------------------------------------------------------------
-// Compare function
-//----------------------------------------------------------------------
-int PriorityCompare(Thread *a, Thread *b) {
-    if(a->getPriority() == b->getPriority())
-        return 0;
-    return a->getPriority() > b->getPriority() ? 1 : -1;
-}
-
-//----------------------------------------------------------------------
 // Scheduler::Scheduler
 // 	Initialize the list of ready but not running threads.
 //	Initially, no ready threads.
@@ -40,26 +31,8 @@ int PriorityCompare(Thread *a, Thread *b) {
 
 Scheduler::Scheduler()
 {
-	Scheduler(RR);
-}
-
-Scheduler::Scheduler(SchedulerType type)
-{
-	schedulerType = type;
-	switch(schedulerType) {
-    	case RR:
-        	readyList = new List<Thread *>;
-        	break;
-    	case SJF:
-		/* todo */
-        	break;
-    	case Priority:
-		readyList = new SortedList<Thread *>(PriorityCompare);
-        	break;
-    	case FIFO:
-		/* todo */
-		break;
-   	}
+//	schedulerType = type;
+	readyList = new List<Thread *>; 
 	toBeDestroyed = NULL;
 
     // for sleep list
@@ -90,7 +63,7 @@ Scheduler::ReadyToRun (Thread *thread)
 {
     ASSERT(kernel->interrupt->getLevel() == IntOff);
     DEBUG(dbgThread, "Putting thread on ready list: " << thread->getName());
-    
+
     thread->setStatus(READY);
     readyList->Append(thread);
 }
@@ -221,7 +194,7 @@ bool Scheduler::anyThreadWoken()
     bool woken = false;
     cpuInterrupt++;
     if (this->sleepingListEmpty()) return woken;
-    for(int i = (int)sleepingList.size() -1; i >= 0; i--)
+    for(int i = (int)sleepingList.size(); i >= 0; i--)
     {
         if (sleepingList[i].due <= this->cpuInterrupt) {
             woken = true;
