@@ -48,10 +48,11 @@ Alarm::Alarm(bool doRandom)
 
 void Alarm::CallBack() {// 週期性的打斷CPU
     Interrupt *interrupt = kernel->interrupt;
+    Scheduler * scheduler = kernel->scheduler;
     MachineStatus status = interrupt->getStatus();
-    bool woken = _sleepList.PutToReady(); // 自定義計數器++；檢查是否有thread已經休眠結束，可以放回Ready Queue
+    bool woken = scheduler->anyThreadWoken(); // 自定義計數器++；檢查是否有thread已經休眠結束，可以放回Ready Queue
     kernel->currentThread->setPriority(kernel->currentThread->getPriority() - 1);
-    if (status == IdleMode && !woken && _sleepList.IsEmpty()) {// is it time to quit?
+    if (status == IdleMode && !woken && scheduler->sleepingListEmpty()) {// is it time to quit?
         if (!interrupt->AnyFutureInterrupts()) {// 有任何在排隊的interrupts嗎？
             timer->Disable();   // turn off the timer
         }
@@ -76,59 +77,59 @@ void Alarm::WaitUntil(int x) {
     //將目前要執行的thread放入休眠
     Thread* t = kernel->currentThread;
     cout << "Alarm::WaitUntil go sleep" << endl;
-    _sleepList.PutToSleep(t, x);
+    kernel->scheduler->PutToSleep(t,x);
     //開中斷
     kernel->interrupt->SetLevel(oldLevel);
 }
 
-//----------------------------------------------------------------------
-// sleepList::IsEmpty
-//      
-//      判斷是否 自定義 休眠型 wait queue 是否已經空了
-//----------------------------------------------------------------------
-bool sleepList::IsEmpty() {
-    return _threadlist.size() == 0;
-}
+// //----------------------------------------------------------------------
+// // sleepList::IsEmpty
+// //      
+// //      判斷是否 自定義 休眠型 wait queue 是否已經空了
+// //----------------------------------------------------------------------
+// bool sleepList::IsEmpty() {
+//     return _threadlist.size() == 0;
+// }
 
-//----------------------------------------------------------------------
-// sleepList::PutToSleep
-//      
-//      將要放入休眠的thread記錄到 自定義 休眠型 wait queue
-//      
-//      並且讓出CPU
-//
-//      "t" -- 為待休眠thread；"x" -- 為休眠時間(以Alarm::CallBack()觸發中斷時計數單位)
-//----------------------------------------------------------------------
-void sleepList::PutToSleep(Thread*t, int x) {
-    ASSERT(kernel->interrupt->getLevel() == IntOff);// 檢查是否interrupt已經disabled
-    _threadlist.push_back(sleepThread(t, _current_interrupt + x));// 將該thread放入列表中(自定義Waiting Queue)
-    t->Sleep(false);// 送入休眠(unfinished，該thread不會被destroyed)，然後讓出CPU
-}
+// //----------------------------------------------------------------------
+// // sleepList::PutToSleep
+// //      
+// //      將要放入休眠的thread記錄到 自定義 休眠型 wait queue
+// //      
+// //      並且讓出CPU
+// //
+// //      "t" -- 為待休眠thread；"x" -- 為休眠時間(以Alarm::CallBack()觸發中斷時計數單位)
+// //----------------------------------------------------------------------
+// void sleepList::PutToSleep(Thread*t, int x) {
+//     ASSERT(kernel->interrupt->getLevel() == IntOff);// 檢查是否interrupt已經disabled
+//     _threadlist.push_back(sleepThread(t, _current_interrupt + x));// 將該thread放入列表中(自定義Waiting Queue)
+//     t->Sleep(false);// 送入休眠(unfinished，該thread不會被destroyed)，然後讓出CPU
+// }
 
-//----------------------------------------------------------------------
-// sleepList::PutToReady
-//      
-//      判斷在 自定義 休眠型 wait queue中的每一個thread，是否有已經經結束休眠者
-//      
-//      若有，則將該thread放回ready queue，並且回傳True
-//
-//----------------------------------------------------------------------
-bool sleepList::PutToReady() {
-    bool woken = false; // 當有thread休眠結束，就為true
-    _current_interrupt ++; // 自定義計數器計數
-    for(std::list<sleepThread>::iterator it = _threadlist.begin();
-        it != _threadlist.end(); ) {
-        if(_current_interrupt >= it->when) {
-            woken = true;
-            cout << "sleepList::PutToReady Thread woken" << endl;
-            kernel->scheduler->ReadyToRun(it->sleeper); // 放入系統ready queue
-            it = _threadlist.erase(it);
-        } else {
-            it++;
-        }
-    }
-    return woken;
-}
+// //----------------------------------------------------------------------
+// // sleepList::PutToReady
+// //      
+// //      判斷在 自定義 休眠型 wait queue中的每一個thread，是否有已經經結束休眠者
+// //      
+// //      若有，則將該thread放回ready queue，並且回傳True
+// //
+// //----------------------------------------------------------------------
+// bool sleepList::PutToReady() {
+//     bool woken = false; // 當有thread休眠結束，就為true
+//     _current_interrupt ++; // 自定義計數器計數
+//     for(std::list<sleepThread>::iterator it = _threadlist.begin();
+//         it != _threadlist.end(); ) {
+//         if(_current_interrupt >= it->when) {
+//             woken = true;
+//             cout << "sleepList::PutToReady Thread woken" << endl;
+//             kernel->scheduler->ReadyToRun(it->sleeper); // 放入系統ready queue
+//             it = _threadlist.erase(it);
+//         } else {
+//             it++;
+//         }
+//     }
+//     return woken;
+// }
 
 
 

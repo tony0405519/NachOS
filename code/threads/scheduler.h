@@ -11,6 +11,7 @@
 
 #include "copyright.h"
 #include "list.h"
+#include <vector>
 #include "thread.h"
 
 // The following class defines the scheduler/dispatcher abstraction -- 
@@ -23,7 +24,7 @@ enum SchedulerType {
         Priority,
 	FIFO
 };
-
+class Sleeper;
 class Scheduler {
   public:
 	Scheduler();		// Initialize list of ready threads 
@@ -49,8 +50,26 @@ class Scheduler {
 	SchedulerType schedulerType;
 	List<Thread *> *readyList;	// queue of threads that are ready to run,
 					// but not running
+
 	Thread *toBeDestroyed;		// finishing thread to be destroyed
     					// by the next thread that runs
-};
 
+	
+	std::vector<Sleeper> sleepingList;
+	int cpuInterrupt;
+  public:
+	bool anyThreadWoken();
+	bool sleepingListEmpty() { return sleepingList.size() == 0u; }
+	void PutToSleep(Thread * thread, int after);
+
+};
+class Sleeper {
+	public:
+		Sleeper(Thread *t, int when):
+			sleepTh(t), due(when){};
+		~Sleeper();
+		Thread * sleepTh;
+		int due;
+};
+	
 #endif // SCHEDULER_H

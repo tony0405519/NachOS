@@ -61,6 +61,10 @@ Scheduler::Scheduler(SchedulerType type)
 		break;
    	}
 	toBeDestroyed = NULL;
+
+    // for sleep list
+    sleepingList = List<sleeper>();
+    cpuInterrupt = 0;
 } 
 
 //----------------------------------------------------------------------
@@ -210,4 +214,31 @@ Scheduler::Print()
 {
     cout << "Ready list contents:\n";
     readyList->Apply(ThreadPrint);
+}
+
+bool Scheduler::anyThreadWoken()
+{
+    int woken = false;
+    cpuInterrupt++;
+    for(int i =0; i < (int)sleepingList.size(); i++)
+    {
+        if (sleepingList[i].due <=this->cpuInterrupt) {
+            woken = true;
+            // 儲存起床地thread 指標
+            Thread * wokenThread = sleepingList[i].sleepTh;
+            // 將sleeper從 sleeping list remove
+            sleepingList.erase(sleepingList.begin() + i);
+            // 將起床地thread送到readylist
+            this->ReadyToRun(wokenThread);
+        }
+    }
+    return woken;
+}
+
+void Scheduler::PutToSleep(Thread * thread, int after)
+{
+    ASSERT(kernel->interrupt->getLevel() == IntOff);// 檢查是否interrupt已經disabled
+    Sleeper target(thread,cpuInterrupt + after);
+    sleepingList.push_back(Sleeper(thread, cpuInterrupt + after));
+    thread->Sleep(FALSE);
 }
