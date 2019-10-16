@@ -216,32 +216,47 @@ Scheduler::Print()
     readyList->Apply(ThreadPrint);
 }
 
+//----------------------------------------------------------------------
+// Scheduler::anyThreadWoken
+//      
+//      判斷在 自定義 休眠型 wait queue中的每一個thread，是否有已經經結束休眠者
+//      
+//      若有，則將該thread放回ready queue，並且回傳True
+//
+//----------------------------------------------------------------------
 bool Scheduler::anyThreadWoken()
 {
     bool woken = false;
     cpuInterrupt++;
     if (this->sleepingListEmpty()) return woken;
-    for(int i = (int)sleepingList.size() -1; i >= 0; i--)
-    {
-        if (sleepingList[i].due <= this->cpuInterrupt) {
+    for(std::vector<Sleeper>::iterator it = sleepingList.begin(); it != sleepingList.end(); ) {
+        if(it->due <= this->cpuInterrupt) {
             woken = true;
-	    
-            // 儲存起床地thread 指標
-            Thread * wokenThread = sleepingList[i].sleepTh;
-	    cout << "sleepList::PutToReady Thread woken:" << wokenThread->getName() << endl;
-            // 將sleeper從 sleeping list remove
-            sleepingList.erase(sleepingList.begin() + i);
-            // 將起床地thread送到readylist
+            // 儲存起床的thread 指標
+            Thread * wokenThread = it->sleepTh;
+            cout << "sleepList::PutToReady Thread woken: " << wokenThread->getName() << endl;
+            // 將sleeper從 sleeping list remove，並且更新iter
+            it = sleepingList.erase(it);
+            // 將起床的thread送到readylist
             this->ReadyToRun(wokenThread);
-        }
+        } 
+        else it++;
     }
     return woken;
 }
 
+//----------------------------------------------------------------------
+// Scheduler::PutToSleep
+//      
+//      將要放入休眠的thread記錄到 自定義 休眠型 wait queue
+//      
+//      並且讓出CPU
+//
+//      "thread" -- 為待休眠thread；"after" -- 為休眠時間(以Alarm::CallBack()觸發中斷時為計數單位)
+//----------------------------------------------------------------------
 void Scheduler::PutToSleep(Thread * thread, int after)
 {
     ASSERT(kernel->interrupt->getLevel() == IntOff);// 檢查是否interrupt已經disabled
-    Sleeper target(thread,cpuInterrupt + after);
     sleepingList.push_back(Sleeper(thread, cpuInterrupt + after));
     thread->Sleep(FALSE);
 }

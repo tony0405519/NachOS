@@ -46,6 +46,10 @@ class Scheduler {
 
     // SelfTest for scheduler is implemented in class Thread
     
+	bool anyThreadWoken();
+	bool sleepingListEmpty() { return sleepingList.size() == 0u; }//判斷是否 自定義 休眠型 wait queue 是否已經空了
+	void PutToSleep(Thread * thread, int after);
+
   private:
 	SchedulerType schedulerType;
 	List<Thread *> *readyList;	// queue of threads that are ready to run,
@@ -57,10 +61,7 @@ class Scheduler {
 	
 	std::vector<Sleeper> sleepingList;
 	int cpuInterrupt;
-  public:
-	bool anyThreadWoken();
-	bool sleepingListEmpty() { return sleepingList.size() == 0u; }
-	void PutToSleep(Thread * thread, int after);
+	
 
 };
 class Sleeper {

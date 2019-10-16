@@ -24,24 +24,6 @@
 #include <list>
 #include "thread.h"
 
-// class sleepList {
-//     public:
-//         sleepList():_current_interrupt(0) {};
-//         void PutToSleep(Thread *t, int x);
-//         bool PutToReady();
-//         bool IsEmpty();
-//     private:
-//         class sleepThread {
-//             public:
-//                 sleepThread(Thread* t, int x):
-//                     sleeper(t), when(x) {};
-//                 Thread* sleeper;
-//                 int when;
-//         };
-//         int _current_interrupt;// 自定義計數器
-//         std::list<sleepThread> _threadlist;// 自定義 休眠型wait queue
-// };
-
 // The following class defines a software alarm clock. 
 class Alarm : public CallBackObj {
   public:
