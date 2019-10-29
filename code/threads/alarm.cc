@@ -46,38 +46,38 @@ Alarm::Alarm(bool doRandom)
 //	interrupts.  In this case, we can safely halt.
 //----------------------------------------------------------------------
 
-void Alarm::CallBack() {// ¶g´Á©Êªº¥´Â_CPU
+void Alarm::CallBack() {// é€±æœŸæ€§çš„æ‰“æ–·CPU
     Interrupt *interrupt = kernel->interrupt;
     Scheduler * scheduler = kernel->scheduler;
     MachineStatus status = interrupt->getStatus();
-    bool woken = scheduler->anyThreadWoken(); // ¦Û©w¸q­p¼Æ¾¹++¡FÀË¬d¬O§_¦³thread¤w¸g¥ð¯vµ²§ô¡A¥i¥H©ñ¦^Ready Queue
+    bool woken = scheduler->anyThreadWoken(); // è‡ªå®šç¾©è¨ˆæ•¸å™¨++ï¼›æª¢æŸ¥æ˜¯å¦æœ‰threadå·²ç¶“ä¼‘çœ çµæŸï¼Œå¯ä»¥æ”¾å›žReady Queue
+    //å¦‚æžœæ²’æœ‰ç¨‹å¼éœ€è¦è¨ˆæ•¸äº†ï¼Œå°±æŠŠæ™‚è„ˆä¸­æ–·é®è”½æŽ‰
     kernel->currentThread->setPriority(kernel->currentThread->getPriority() - 1);
     if (status == IdleMode && !woken && scheduler->sleepingListEmpty()) {// is it time to quit?
-        if (!interrupt->AnyFutureInterrupts()) {// ¦³¥ô¦ó¦b±Æ¶¤ªºinterrupts¶Ü¡H
+        if (!interrupt->AnyFutureInterrupts()) {// æœ‰ä»»ä½•åœ¨æŽ’éšŠçš„interruptså—Žï¼Ÿ
             timer->Disable();   // turn off the timer
         }
     } else {                    // there's someone to preempt
-	if(kernel->scheduler->getSchedulerType() == RR ||
-            kernel->scheduler->getSchedulerType() == Priority ) {
-		interrupt->YieldOnReturn();
-	}
+	    if(kernel->scheduler->getSchedulerType() == RR || kernel->scheduler->getSchedulerType() == Priority ) {
+		    interrupt->YieldOnReturn();// åšcontext switch(æ›ä¸‹ä¸€çµ„codeä¸Šä¾†)
+	    }
     }
 }
 
 //----------------------------------------------------------------------
 // Alarm::WaitUntil
-//      ³o¬Ouser program©I¥sSleep(int)«á¡A¸g¹Lexception.ccªº¶i¤JÂI
+//      é€™æ˜¯user programå‘¼å«Sleep(int)å¾Œï¼Œç¶“éŽexception.ccçš„é€²å…¥é»ž
 //
-//      ·|§â·í«e¥¿¦b°õ¦æªºthread°O¿ý¤U¨Ó¨Ã°e¤J¥ð¯vª¬ºA
+//      æœƒæŠŠç•¶å‰æ­£åœ¨åŸ·è¡Œçš„threadè¨˜éŒ„ä¸‹ä¾†ä¸¦é€å…¥ä¼‘çœ ç‹€æ…‹
 //
 //----------------------------------------------------------------------
 void Alarm::WaitUntil(int x) {
-    //Ãö¤¤Â_¡A¤£Åý¨ä¥Lthread¯à°÷±j¨î¶i¤J(preempt)¡A­ç°£¥»thread
+    //é—œä¸­æ–·ï¼Œä¸è®“å…¶ä»–threadèƒ½å¤ å¼·åˆ¶é€²å…¥(preempt)ï¼Œå‰”é™¤æœ¬thread
     IntStatus oldLevel = kernel->interrupt->SetLevel(IntOff);
-    //±N¥Ø«e­n°õ¦æªºthread©ñ¤J¥ð¯v
+    //å°‡ç›®å‰è¦åŸ·è¡Œçš„threadæ”¾å…¥ä¼‘çœ 
     Thread* t = kernel->currentThread;
     cout << "Alarm::WaitUntil go sleep" << endl;
     kernel->scheduler->PutToSleep(t,x);
-    //¶}¤¤Â_
+    //é–‹ä¸­æ–·
     kernel->interrupt->SetLevel(oldLevel);
 }
