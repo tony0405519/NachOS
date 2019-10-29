@@ -59,7 +59,8 @@ void Alarm::CallBack() {// 週期性的打斷CPU
         }
     } else {                    // there's someone to preempt
 	    if(kernel->scheduler->getSchedulerType() == RR || kernel->scheduler->getSchedulerType() == Priority ) {
-		    interrupt->YieldOnReturn();// 做context switch(換下一組code上來)
+		    cout << "=== interrupt->YieldOnReturn ===" << endl;
+            interrupt->YieldOnReturn();// 做context switch(換下一組code上來)
 	    }
     }
 }

@@ -107,6 +107,8 @@ class Thread {
     int getBurstTime()		{return burstTime;}
     void setPriority(int t)	{priority = t;}
     int getPriority()		{return priority;}
+    void setStartTime(int t)	{startTime = t;}
+    int getStartTime()		{return startTime;}
     char* getName() { return (name); }
     void Print() { cout << name; }
     void SelfTest();		// test whether thread impl is working
@@ -120,6 +122,7 @@ class Thread {
     ThreadStatus status;	// ready, running or blocked
     char* name;
     int burstTime;
+    int startTime;	// the start time of the thread
     int priority;	
     void StackAllocate(VoidFunctionPtr func, void *arg);
     				// Allocate a stack for thread.

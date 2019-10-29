@@ -29,14 +29,16 @@ ThreadedKernel::ThreadedKernel(int argc, char **argv)
 
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-rs") == 0) {
- 	    ASSERT(i + 1 < argc);
-	    RandomInit(atoi(argv[i + 1]));// initialize pseudo-random
+ 	        ASSERT(i + 1 < argc);
+	        RandomInit(atoi(argv[i + 1]));// initialize pseudo-random
 					// number generator
-	    randomSlice = TRUE;
-	    i++;
-        } else if (strcmp(argv[i], "-u") == 0) {
+	        randomSlice = TRUE;
+	        i++;
+        } 
+        else if (strcmp(argv[i], "-u") == 0) {
             cout << "Partial usage: nachos [-rs randomSeed]\n";
-	} else if(strcmp(argv[i], "RR") == 0) {
+	    } 
+        else if(strcmp(argv[i], "RR") == 0) {
             type = RR;
         } else if (strcmp(argv[i], "FCFS") == 0) {
             type = FIFO;
