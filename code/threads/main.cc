@@ -74,12 +74,12 @@ main(int argc, char **argv)
     
     DEBUG(dbgThread, "Entering main");
 
-    kernel = new KernelType(argc, argv);
+    kernel = new KernelType(argc, argv); // 設定使用的排程方法
     kernel->Initialize();
     
     CallOnUserAbort(Cleanup);		// if user hits ctl-C
 
-    kernel->SelfTest();
+    kernel->SelfTest(); // 會跑到Thread::SelfTest()測試排程方法的正確性
     kernel->Run();
     
     return 0;

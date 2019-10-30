@@ -38,13 +38,13 @@ ThreadedKernel::ThreadedKernel(int argc, char **argv)
         else if (strcmp(argv[i], "-u") == 0) {
             cout << "Partial usage: nachos [-rs randomSeed]\n";
 	    } 
-        else if(strcmp(argv[i], "RR") == 0) {
+        else if(strcmp(argv[i], "-RR") == 0) {
             type = RR;
-        } else if (strcmp(argv[i], "FCFS") == 0) {
+        } else if (strcmp(argv[i], "-FCFS") == 0) {
             type = FIFO;
-        } else if (strcmp(argv[i], "PRIORITY") == 0) {
+        } else if (strcmp(argv[i], "-PRIORITY") == 0) {
             type = Priority;
-        } else if (strcmp(argv[i], "SJF") == 0) {
+        } else if (strcmp(argv[i], "-SJF") == 0) {
             type = SJF;
         }
     }
@@ -60,6 +60,21 @@ ThreadedKernel::ThreadedKernel(int argc, char **argv)
 void
 ThreadedKernel::Initialize()
 {
+    stats = new Statistics();		// collect statistics
+    interrupt = new Interrupt;		// start up interrupt handling
+    scheduler = new Scheduler(type);	// initialize the ready queue
+    alarm = new Alarm(randomSlice);	// start up time slicing
+
+    // We didn't explicitly allocate the current thread we are running in.
+    // But if it ever tries to give up the CPU, we better have a Thread
+    // object to save its state. 
+    currentThread = new Thread("main");		
+    currentThread->setStatus(RUNNING);
+
+    interrupt->Enable();
+}
+
+void ThreadedKernel::Initialize(SchedulerType type){
     stats = new Statistics();		// collect statistics
     interrupt = new Interrupt;		// start up interrupt handling
     scheduler = new Scheduler(type);	// initialize the ready queue
@@ -121,7 +136,7 @@ ThreadedKernel::SelfTest() {
    LibSelfTest();		// test library routines
    
    currentThread->SelfTest();	// test thread switching
-   
+   Thread::SelfTest();
    				// test semaphore operation
    semaphore = new Semaphore("test", 0);
    semaphore->SelfTest();

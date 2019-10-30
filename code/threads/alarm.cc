@@ -52,16 +52,22 @@ void Alarm::CallBack() {// 週期性的打斷CPU
     MachineStatus status = interrupt->getStatus();
     bool woken = scheduler->anyThreadWoken(); // 自定義計數器++；檢查是否有thread已經休眠結束，可以放回Ready Queue
     //如果沒有程式需要計數了，就把時脈中斷遮蔽掉
-    kernel->currentThread->setPriority(kernel->currentThread->getPriority() - 1);
+    kernel->currentThread->setPriority(kernel->currentThread->getPriority() - 1); //為何要-1
     if (status == IdleMode && !woken && scheduler->sleepingListEmpty()) {// is it time to quit?
         if (!interrupt->AnyFutureInterrupts()) {// 有任何在排隊的interrupts嗎？
             timer->Disable();   // turn off the timer
         }
     } else {                    // there's someone to preempt
-	    if(kernel->scheduler->getSchedulerType() == RR || kernel->scheduler->getSchedulerType() == Priority ) {
-		    cout << "=== interrupt->YieldOnReturn ===" << endl;
+	    if(kernel->scheduler->getSchedulerType() == RR) {
+		    // cout << "=== interrupt->YieldOnReturn ===" << endl;
             interrupt->YieldOnReturn();// 做context switch(換下一組code上來)
 	    }
+        else if(kernel->scheduler->getSchedulerType() == Priority){
+            return;
+        }
+        else{
+            return;
+        }
     }
 }
 
@@ -77,6 +83,12 @@ void Alarm::WaitUntil(int x) {
     IntStatus oldLevel = kernel->interrupt->SetLevel(IntOff);
     //將目前要執行的thread放入休眠
     Thread* t = kernel->currentThread;
+
+    // burst time
+    int worktime = kernel->stats->userTicks - t->getStartTime();
+    t->setBurstTime(t->getBurstTime() + worktime);
+    t->setStartTime(kernel->stats->userTicks); // 因為新的burstTime是根據上一個startTime
+    cout << "userticks = "<< kernel->stats->userTicks << endl;
     cout << "Alarm::WaitUntil go sleep" << endl;
     kernel->scheduler->PutToSleep(t,x);
     //開中斷

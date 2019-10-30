@@ -111,7 +111,7 @@ class Thread {
     int getStartTime()		{return startTime;}
     char* getName() { return (name); }
     void Print() { cout << name; }
-    void SelfTest();		// test whether thread impl is working
+    static void SelfTest();		// test whether thread impl is working
 
   private:
     // some of the private data for this class is listed above

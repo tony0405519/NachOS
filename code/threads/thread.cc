@@ -430,18 +430,32 @@ SimpleThread()
 void
 Thread::SelfTest()
 {
-    DEBUG(dbgThread, "Entering Thread::SelfTest");
+    // DEBUG(dbgThread, "Entering Thread::SelfTest");
     
-    const int number 	 = 3;
-    char *name[number] 	 = {"A", "B", "C"};
-    int burst[number] 	 = {3, 10, 4};
-    int priority[number] = {4, 5, 3};
+    // const int number 	 = 3;
+    // char *name[number] 	 = {"A", "B", "C"};
+    // int burst[number] 	 = {3, 10, 4};
+    // int priority[number] = {4, 5, 3};
 
+    // Thread *t;
+    // for (int i = 0; i < number; i ++) {
+    //     t = new Thread(name[i]);
+    //     t->setPriority(priority[i]);
+    //     t->setBurstTime(burst[i]);
+    //     t->Fork((VoidFunctionPtr) SimpleThread, (void *)NULL);
+    // }
+    // kernel->currentThread->Yield();
+    const int thread_num = 4;
+    char *name[thread_num] = {"A", "B", "C", "D"};
+    int thread_priority[thread_num] = {5, 1, 3, 2};
+    int thread_burst[thread_num] = {3, 9, 7, 3};
+    int thread_startTime[thread_num] = {1, 2, 3, 4};
     Thread *t;
-    for (int i = 0; i < number; i ++) {
+    for (int i = 0; i < thread_num; i ++) {
         t = new Thread(name[i]);
-        t->setPriority(priority[i]);
-        t->setBurstTime(burst[i]);
+        t->setPriority(thread_priority[i]);
+        t->setBurstTime(thread_burst[i]);
+        t->setStartTime(thread_startTime[i]);
         t->Fork((VoidFunctionPtr) SimpleThread, (void *)NULL);
     }
     kernel->currentThread->Yield();
