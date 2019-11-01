@@ -46,7 +46,10 @@ ThreadedKernel::ThreadedKernel(int argc, char **argv)
             type = Priority;
         } else if (strcmp(argv[i], "-SJF") == 0) {
             type = SJF;
+        } else if(strcmp(argv[i], "-SRTF") == 0){
+            type = SRTF;
         }
+        
     }
 }
 
@@ -136,7 +139,7 @@ ThreadedKernel::SelfTest() {
    LibSelfTest();		// test library routines
    
    currentThread->SelfTest();	// test thread switching
-   Thread::SelfTest();
+   // Thread::SelfTest();
    				// test semaphore operation
    semaphore = new Semaphore("test", 0);
    semaphore->SelfTest();

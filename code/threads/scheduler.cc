@@ -54,18 +54,21 @@ Scheduler::Scheduler(SchedulerType type)
 {
 	schedulerType = type;
 	switch(schedulerType) {
+        case FIFO:
+		    readyList = new SortedList<Thread *>(FIFOCompare);
+		    break;
+        case SJF:
+		    readyList = new SortedList<Thread *>(SJFCompare);
+        	break;
+        case SRTF:
+            readyList = new SortedList<Thread *>(SJFCompare);
+            break;
     	case RR:
         	readyList = new List<Thread *>;
-        	break;
-    	case SJF:
-		    readyList = new SortedList<Thread *>(FIFOCompare);
         	break;
     	case Priority:
 		    readyList = new SortedList<Thread *>(PriorityCompare);
         	break;
-    	case FIFO:
-		    readyList = new SortedList<Thread *>(SJFCompare);
-		    break;
    	}
 	toBeDestroyed = NULL;
 

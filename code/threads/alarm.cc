@@ -58,16 +58,10 @@ void Alarm::CallBack() {// 週期性的打斷CPU
             timer->Disable();   // turn off the timer
         }
     } else {                    // there's someone to preempt
-	    if(kernel->scheduler->getSchedulerType() == RR) {
-		    // cout << "=== interrupt->YieldOnReturn ===" << endl;
+	    if(kernel->scheduler->getSchedulerType() == RR || kernel->scheduler->getSchedulerType() == Priority || kernel->scheduler->getSchedulerType() == SRTF) {
+		    cout << "=== interrupt->YieldOnReturn ===" << endl;
             interrupt->YieldOnReturn();// 做context switch(換下一組code上來)
 	    }
-        else if(kernel->scheduler->getSchedulerType() == Priority){
-            return;
-        }
-        else{
-            return;
-        }
     }
 }
 
@@ -85,10 +79,10 @@ void Alarm::WaitUntil(int x) {
     Thread* t = kernel->currentThread;
 
     // burst time
-    int worktime = kernel->stats->userTicks - t->getStartTime();
-    t->setBurstTime(t->getBurstTime() + worktime);
-    t->setStartTime(kernel->stats->userTicks); // 因為新的burstTime是根據上一個startTime
-    cout << "userticks = "<< kernel->stats->userTicks << endl;
+    // int worktime = kernel->stats->userTicks - t->getStartTime();
+    // t->setBurstTime(t->getBurstTime() + worktime);
+    // t->setStartTime(kernel->stats->userTicks); // 因為新的burstTime是根據上一個startTime
+    // cout << "userticks = "<< kernel->stats->userTicks << endl;
     cout << "Alarm::WaitUntil go sleep" << endl;
     kernel->scheduler->PutToSleep(t,x);
     //開中斷

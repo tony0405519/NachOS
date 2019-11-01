@@ -24,25 +24,28 @@ UserProgKernel::UserProgKernel(int argc, char **argv)
 	execfileNum=0;
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-s") == 0) {
-	    debugUserProg = TRUE;
-	}
-	else if (strcmp(argv[i], "-e") == 0) {
-		execfile[++execfileNum]= argv[++i];
-	}
-    	 else if (strcmp(argv[i], "-u") == 0) {
-		cout << "===========The following argument is defined in userkernel.cc" << endl;
-		cout << "Partial usage: nachos [-s]\n";
-		cout << "Partial usage: nachos [-u]" << endl;
-		cout << "Partial usage: nachos [-e] filename" << endl;
-	}
-	else if (strcmp(argv[i], "-h") == 0) {
-		cout << "argument 's' is for debugging. Machine status  will be printed " << endl;
-		cout << "argument 'e' is for execting file." << endl;
-		cout << "atgument 'u' will print all argument usage." << endl;
-		cout << "For example:" << endl;
-		cout << "	./nachos -s : Print machine status during the machine is on." << endl;
-		cout << "	./nachos -e file1 -e file2 : executing file1 and file2."  << endl;
-	}
+	    	debugUserProg = TRUE;
+		}
+		else if (strcmp(argv[i], "-e") == 0) { // 可以在這裡將flag map 到 execfileNum
+			execfile[++execfileNum]= argv[++i];
+		}
+		else if(strcmp(argv[i], "-prio") == 0){ 
+			// to-do，can make userkernel SJF
+		}
+    	else if (strcmp(argv[i], "-u") == 0) {
+			cout << "===========The following argument is defined in userkernel.cc" << endl;
+			cout << "Partial usage: nachos [-s]\n";
+			cout << "Partial usage: nachos [-u]" << endl;
+			cout << "Partial usage: nachos [-e] filename" << endl;
+		}
+		else if (strcmp(argv[i], "-h") == 0) {
+			cout << "argument 's' is for debugging. Machine status  will be printed " << endl;
+			cout << "argument 'e' is for execting file." << endl;
+			cout << "atgument 'u' will print all argument usage." << endl;
+			cout << "For example:" << endl;
+			cout << "	./nachos -s : Print machine status during the machine is on." << endl;
+			cout << "	./nachos -e file1 -e file2 : executing file1 and file2."  << endl;
+		}
     }
 }
 
@@ -104,7 +107,7 @@ UserProgKernel::Run()
 {
 
 	cout << "Total threads number is " << execfileNum << endl;
-	for (int n=1;n<=execfileNum;n++)
+	for (int n=1;n<=execfileNum;n++) // 生成newThread的地方
 		{
 		t[n] = new Thread(execfile[n]);
 		t[n]->space = new AddrSpace();

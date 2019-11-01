@@ -42,6 +42,9 @@ class UserProgKernel : public ThreadedKernel {
     bool debugUserProg;		// single step user program
 	Thread* t[10];
 	char*	execfile[10];
+  int priority[10];
+  int startTime[10];
+  int burstTime[10];
 	int	execfileNum;
 };
 
