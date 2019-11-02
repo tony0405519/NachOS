@@ -209,7 +209,7 @@ Thread::Yield ()
     ASSERT(this == kernel->currentThread);
     
     DEBUG(dbgThread, "Yielding thread: " << name);
-    
+
     nextThread = kernel->scheduler->FindNextToRun();
     if (nextThread != NULL) {
 	kernel->scheduler->ReadyToRun(this);
@@ -415,9 +415,8 @@ SimpleThread()
     Thread *thread = kernel->currentThread;
     while (thread->getBurstTime() > 0) {
         thread->setBurstTime(thread->getBurstTime() - 1);
-	printf("%s: %d\n", kernel->currentThread->getName(), kernel->currentThread->getBurstTime());
-        //kernel->currentThread->Yield();
-	kernel->interrupt->OneTick();
+	    printf("%s: %d\n", kernel->currentThread->getName(), kernel->currentThread->getBurstTime());
+	    kernel->interrupt->OneTick();
     }    
 }
 
@@ -436,7 +435,6 @@ Thread::SelfTest() // SJF SRTF 使用
     char *name[number] 	 = {"A", "B", "C"};
     int burst[number] 	 = {3, 10, 4};
     int priority[number] = {4, 5, 3};
-    int startTime[number] = {0, 2, 3};
     Thread *t;
     for (int i = 0; i < number; i ++) {
         t = new Thread(name[i]);
