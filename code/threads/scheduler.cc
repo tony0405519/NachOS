@@ -23,6 +23,14 @@
 #include "scheduler.h"
 #include "main.h"
 
+//--------------------------------------------------------
+// 自定義函數，印出Thread的名稱及burstTime
+//--------------------------------------------------------
+void PrintThreadBurstTime(Thread *t) {
+    t->Print();
+    printf(": %d    ",t->getBurstTime());
+}
+
 //----------------------------------------------------------------------
 // Compare function
 //----------------------------------------------------------------------
@@ -48,28 +56,36 @@ int FIFOCompare(Thread *a, Thread *b) {
 Scheduler::Scheduler()
 {
 	Scheduler(RR);
+    DEBUG(dbgScheduler,"Schduler type: " << "RR");
 }
 
 Scheduler::Scheduler(SchedulerType type)
 {
 	schedulerType = type;
+    const char* schType;
 	switch(schedulerType) {
         case FIFO:
 		    readyList = new SortedList<Thread *>(FIFOCompare);
+            schType = "FIFO";
 		    break;
         case SJF:
 		    readyList = new SortedList<Thread *>(SJFCompare);
+            schType = "SJF";
         	break;
         case SRTF:
             readyList = new SortedList<Thread *>(SJFCompare);
+            schType = "SRTF";
             break;
     	case RR:
         	readyList = new List<Thread *>;
+            schType = "RR";
         	break;
     	case Priority:
 		    readyList = new SortedList<Thread *>(PriorityCompare);
+            schType = "Priority";
         	break;
    	}
+    DEBUG(dbgScheduler,"Schduler type: " << schType);
 	toBeDestroyed = NULL;
 
     // for sleep list
@@ -121,6 +137,11 @@ Scheduler::FindNextToRun ()
     if (readyList->IsEmpty()) {
 	return NULL;
     } else {
+        // 自定義debug flag，印出所有的thread的bursttime
+        if (debug->IsEnabled(dbgScheduler)) {
+            readyList->Apply(PrintThreadBurstTime);
+            printf("\n");
+        }
     	return readyList->RemoveFront();
     }
 }

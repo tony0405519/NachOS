@@ -129,27 +129,28 @@ ThreadedKernel::Run()
 //----------------------------------------------------------------------
 // ThreadedKernel::SelfTest
 //      Test whether this module is working.
+// 只測試Scheduler的部分，所以目前先將其他SelfTest去除
 //----------------------------------------------------------------------
 
 void
 ThreadedKernel::SelfTest() {
-   Semaphore *semaphore;
-   SynchList<int> *synchList;
+   //Semaphore *semaphore;
+   //SynchList<int> *synchList;
    
-   LibSelfTest();		// test library routines
+   //LibSelfTest();		// test library routines
    
    currentThread->SelfTest();	// test thread switching
    // Thread::SelfTest();
    				// test semaphore operation
-   semaphore = new Semaphore("test", 0);
-   semaphore->SelfTest();
-   delete semaphore;
+   //semaphore = new Semaphore("test", 0);
+   //semaphore->SelfTest();
+   //delete semaphore;
    
    				// test locks, condition variables
 				// using synchronized lists
-   synchList = new SynchList<int>;
-   synchList->SelfTest(9);
-   delete synchList;
+   //synchList = new SynchList<int>;
+   //synchList->SelfTest(9);
+   //delete synchList;
 
-   ElevatorSelfTest();
+   //ElevatorSelfTest();
 }

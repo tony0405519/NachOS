@@ -433,14 +433,30 @@ Thread::SelfTest() // SJF SRTF 使用
     
     const int number 	 = 3;
     char *name[number] 	 = {"A", "B", "C"};
-    int burst[number] 	 = {3, 10, 4};
+    int burst[number] 	 = {3, 10, 2};
     int priority[number] = {4, 5, 3};
     Thread *t;
     for (int i = 0; i < number; i ++) {
+        // 如果Scheduler type 是SRTF額外做preemtive測試
+        if (kernel->scheduler->getSchedulerType() == SRTF)  {continue;}
         t = new Thread(name[i]);
         t->setPriority(priority[i]);
         t->setBurstTime(burst[i]);
         t->Fork((VoidFunctionPtr) SimpleThread, (void *)NULL);
+    }
+
+    // 如果Scheduler type 是SRTF額外做preemtive測試
+    if (kernel->scheduler->getSchedulerType() == SRTF) {
+        t = new Thread(name[2]);
+        t->setPriority(priority[2]);
+        t->setBurstTime(burst[2]);
+        t->Fork((VoidFunctionPtr) SimpleThread, (void *)NULL);
+        InterruptItem *item = new InterruptItem(t);
+        // ** 測試流程 **
+        // 1. 此時systemtick為0
+        // 2. 200 ticks後，A已執行完成、B剩餘BurstTime大於2、C此時被放到readyList
+        // 3. 200 ticks後，由於C剩餘BurstTime比B少，輪到C執行
+        kernel->interrupt->Schedule(item, 200, TimerInt);
     }
     kernel->currentThread->Yield();
     // const int thread_num = 4;
@@ -459,3 +475,18 @@ Thread::SelfTest() // SJF SRTF 使用
     // kernel->currentThread->Yield();
 }
 
+//----------------------------------------------------------------------
+// InterruptItem::InterruptItem
+// 	建立InterruptItem 物件
+//----------------------------------------------------------------------
+InterruptItem::InterruptItem(Thread * t):
+wakenThread(t)
+{}
+
+//----------------------------------------------------------------------
+// InterruptItem::Callback()
+// 	當interrupt發生時，將thread放入readyList
+//----------------------------------------------------------------------
+void InterruptItem::CallBack() {
+    kernel->scheduler->ReadyToRun(wakenThread);
+}

@@ -143,6 +143,19 @@ class Thread {
 #endif
 };
 
+
+// InterruptItem 類別
+// 是一種當interrupt發生時，會將存起來的thread放到readyList的物件
+// 專門給SRTF preemtive 測試
+class InterruptItem: public CallBackObj 
+{
+public:
+  InterruptItem(Thread * t);
+  virtual void CallBack();
+private:
+  Thread *wakenThread;
+};
+
 // external function, dummy routine whose sole job is to call Thread::Print
 extern void ThreadPrint(Thread *thread);	 
 
