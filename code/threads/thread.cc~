@@ -433,7 +433,7 @@ Thread::SelfTest() // SJF SRTF 使用
     
     const int number 	 = 3;
     char *name[number] 	 = {"A", "B", "C"};
-    int burst[number] 	 = {3, 10, 2};
+    int burst[number] 	 = {3, 10, 4};
     int priority[number] = {4, 5, 3};
     Thread *t;
     for (int i = 0; i < number; i ++) {
@@ -487,5 +487,6 @@ wakenThread(t)
 // 	當interrupt發生時，將thread放入readyList
 //----------------------------------------------------------------------
 void InterruptItem::CallBack() {
+	printf("trigger interrupt, fork thread C\n");
 	wakenThread->Fork((VoidFunctionPtr) SimpleThread, (void *)NULL);
 }

@@ -59,7 +59,6 @@ void Alarm::CallBack() {// 週期性的打斷CPU
         }
     } else {                    // there's someone to preempt
 	    if(kernel->scheduler->getSchedulerType() == RR || kernel->scheduler->getSchedulerType() == Priority) {
-		cout << "=== interrupt->YieldOnReturn ===" << endl;
             	interrupt->YieldOnReturn();// 做context switch(換下一組code上來)
 	    } else if (kernel->scheduler->getSchedulerType() == SRTF){
 		//關中斷，不讓其他thread能夠強制進入(preempt)，剔除本thread
@@ -75,7 +74,6 @@ void Alarm::CallBack() {// 週期性的打斷CPU
 		kernel->scheduler->ReadyToRun(nextShortestThread);
 		if (shouldYield)
 		{
-			cout << "=== interrupt->YieldOnReturn ===" << endl;
             		interrupt->YieldOnReturn();// 做context switch(換下一組code上來)
 		}
 

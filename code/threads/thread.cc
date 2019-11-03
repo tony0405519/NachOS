@@ -433,20 +433,20 @@ Thread::SelfTest() // SJF SRTF 使用
     
     const int number 	 = 3;
     char *name[number] 	 = {"A", "B", "C"};
-    int burst[number] 	 = {3, 10, 12};
+    int burst[number] 	 = {3, 10, 4};
     int priority[number] = {4, 5, 3};
     Thread *t;
     for (int i = 0; i < number; i ++) {
-        // 如果Scheduler type 是SRTF額外做preemtive測試
-        if (kernel->scheduler->getSchedulerType() == SRTF && i == 2)  {continue;}
+        // 如果Scheduler type 是SRTF,SJF額外做preemtive測試
+        if ((kernel->scheduler->getSchedulerType() == SRTF || kernel->scheduler->getSchedulerType() == SJF) && i == 2)  {continue;}
         t = new Thread(name[i]);
         t->setPriority(priority[i]);
         t->setBurstTime(burst[i]);
         t->Fork((VoidFunctionPtr) SimpleThread, (void *)NULL);
     }
 
-    // 如果Scheduler type 是SRTF額外做preemtive測試
-    if (kernel->scheduler->getSchedulerType() == SRTF) {
+    // 如果Scheduler type 是SRTF,SJF額外做preemtive測試
+    if (kernel->scheduler->getSchedulerType() == SRTF || kernel->scheduler->getSchedulerType() == SJF) {
         t = new Thread(name[2]);
         t->setPriority(priority[2]);
         t->setBurstTime(burst[2]);
@@ -487,5 +487,6 @@ wakenThread(t)
 // 	當interrupt發生時，將thread放入readyList
 //----------------------------------------------------------------------
 void InterruptItem::CallBack() {
+	printf("trigger interrupt, fork thread C\n");
 	wakenThread->Fork((VoidFunctionPtr) SimpleThread, (void *)NULL);
 }
