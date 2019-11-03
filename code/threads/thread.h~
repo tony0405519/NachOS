@@ -40,7 +40,6 @@
 #include "copyright.h"
 #include "utility.h"
 #include "sysdep.h"
-#include "callback.h"
 
 #ifdef USER_PROGRAM
 #include "machine.h"

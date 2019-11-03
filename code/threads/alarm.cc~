@@ -72,7 +72,7 @@ void Alarm::CallBack() {// 週期性的打斷CPU
 		// 比較應不應該切換thread,並將nextShortestThread放回去
 		//(因為是SRTF才會進到這裡,所以可以保證這個thread回到原位)
 		bool shouldYield = kernel->currentThread->getBurstTime() > nextShortestThread->getBurstTime();
-		kernel->scheduler->ReadyToRun(nextShortestThread);
+		kernel->scheduler->readyToRun(nextShortestThread);
 		if (shouldYield)
 		{
 			cout << "=== interrupt->YieldOnReturn ===" << endl;

@@ -28,7 +28,7 @@
 //--------------------------------------------------------
 void PrintThreadBurstTime(Thread *t) {
     t->Print();
-    printf(": %d    ",t->getBurstTime());
+    printf(" burstTime: %d    ",t->getBurstTime());
 }
 
 //----------------------------------------------------------------------
@@ -139,6 +139,7 @@ Scheduler::FindNextToRun ()
     } else {
         // 自定義debug flag，印出所有的thread的bursttime
         if (debug->IsEnabled(dbgScheduler)) {
+	    printf("readyList: ");
             readyList->Apply(PrintThreadBurstTime);
             printf("\n");
         }
