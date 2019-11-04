@@ -433,12 +433,13 @@ Thread::SelfTest() // SJF SRTF 使用
     
     const int number 	 = 3;
     char *name[number] 	 = {"A", "B", "C"};
-    int burst[number] 	 = {3, 10, 4};
+    int burst[number] 	 = {3, 20, 4};
     int priority[number] = {4, 5, 3};
+    
     Thread *t;
     for (int i = 0; i < number; i ++) {
         // 如果Scheduler type 是SRTF,SJF額外做preemtive測試
-        if ((kernel->scheduler->getSchedulerType() == SRTF || kernel->scheduler->getSchedulerType() == SJF) && i == 2)  {continue;}
+        if ((kernel->scheduler->getSchedulerType() == SRTF) && i == 2)  {continue;}
         t = new Thread(name[i]);
         t->setPriority(priority[i]);
         t->setBurstTime(burst[i]);
@@ -446,16 +447,16 @@ Thread::SelfTest() // SJF SRTF 使用
     }
 
     // 如果Scheduler type 是SRTF,SJF額外做preemtive測試
-    if (kernel->scheduler->getSchedulerType() == SRTF || kernel->scheduler->getSchedulerType() == SJF) {
+    if (kernel->scheduler->getSchedulerType() == SRTF) {
         t = new Thread(name[2]);
         t->setPriority(priority[2]);
         t->setBurstTime(burst[2]);
         // ** 測試流程 **
-        // 1. 此時systemtick為0
-        // 2. 200 ticks後，A已執行完成、B剩餘BurstTime大於2、C此時被放到readyList
+        // 1. 此時systemtick為30
+        // 2. 130 ticks後，A已執行完成、B剩餘BurstTime大於2、C此時被放到readyList
         // 3. 200 ticks後，由於C剩餘BurstTime比B少，輪到C執行
 	InterruptItem *item = new InterruptItem(t);
-	kernel->interrupt->Schedule(item,60,TimerInt);
+	kernel->interrupt->Schedule(item,100,TimerInt);
     }
     kernel->currentThread->Yield();
     // const int thread_num = 4;
