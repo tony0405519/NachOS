@@ -61,6 +61,7 @@ UserProgKernel::Initialize()
 
     machine = new Machine(debugUserProg);
     fileSystem = new FileSystem();
+	vm_Disk = new SynchDisk("New Disk");//to save the page which the main memoey don't have enough memory to save
 #ifdef FILESYS
     synchDisk = new SynchDisk("New SynchDisk");
 #endif // FILESYS
@@ -72,6 +73,7 @@ UserProgKernel::Initialize(SchedulerType type)
     ThreadedKernel::Initialize(type);	// init multithreading
     machine = new Machine(debugUserProg);
     fileSystem = new FileSystem();
+	vm_Disk = new SynchDisk("New Disk");//to save the page which the main memoey don't have enough memory to save
 #ifdef FILESYS
     synchDisk = new SynchDisk("New SynchDisk");
 #endif // FILESYS

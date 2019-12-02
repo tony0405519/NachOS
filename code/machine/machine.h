@@ -30,7 +30,7 @@
 const unsigned int PageSize = 128; 		// set the page size equal to
 					// the disk sector size, for simplicity
 
-const unsigned int NumPhysPages = 64;
+const unsigned int NumPhysPages = 32;
 const int MemorySize = (NumPhysPages * PageSize);
 const int TLBSize = 4;			// if there is a TLB, make it small
 
@@ -132,6 +132,17 @@ class Machine {
     TranslationEntry *pageTable;
     unsigned int pageTableSize;
     bool ReadMem(int addr, int size, int* value);
+
+	bool usedPhyPage[NumPhysPages];//record which the page in the main memory is used.
+    bool usedvirPage[NumPhysPages];
+    int  ID_num;
+    int PhyPageName[NumPhysPages];
+    int count[NumPhysPages]; //for LRU
+    bool reference_bit[NumPhysPages];//for second chance algo.
+    int sector_number;//record which sector the disk is saving
+	
+	TranslationEntry *main_tab[NumPhysPages];
+
   private:
 
 // Routines internal to the machine simulation -- DO NOT call these directly

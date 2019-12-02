@@ -29,18 +29,18 @@ class UserProgKernel : public ThreadedKernel {
     void Run();			// do kernel stuff 
 
     void SelfTest();		// test whether kernel is working
-
+    SynchDisk *vm_Disk;     //to save the page which the main memoey don't have enough memory to save
 // These are public for notational convenience.
     Machine *machine;
     FileSystem *fileSystem;
-
+    bool debugUserProg;
 #ifdef FILESYS
     SynchDisk *synchDisk;
 #endif // FILESYS
 
   private:
-    bool debugUserProg;		// single step user program
-	Thread* t[10];
+    // bool debugUserProg;		// single step user program
+	  Thread* t[10];
 	char*	execfile[10];
   int priority[10];
   int startTime[10];
