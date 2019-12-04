@@ -16,6 +16,8 @@
 #include "interrupt.h"
 #include "stats.h"
 #include "alarm.h"
+#include "translate.h"
+
 
 class ThreadedKernel {
   public:
@@ -42,10 +44,11 @@ class ThreadedKernel {
     Interrupt *interrupt;	// interrupt status
     Statistics *stats;		// performance metrics
     Alarm *alarm;		// the software alarm clock    
-
+    PageFaultType pfType;
   private:
     bool randomSlice;		// enable pseudo-random time slicing
     SchedulerType type;
+    
 };
 
 

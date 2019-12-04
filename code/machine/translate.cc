@@ -232,8 +232,10 @@ Machine::Translate(int virtAddr, int* physAddr, int size, bool writing)
 			kernel->machine->main_tab[j]=&pageTable[vpn];
 			pageTable[vpn].physicalPage = j;
 			pageTable[vpn].valid = TRUE;
-			// pageTable[vpn].count++; //for LRU
-			// pageTable[vpn].reference_bit = FALSE; //for second chance algo.
+			if(kernel->pfType == LRU)
+				pageTable[vpn].count++; //for LRU
+			else if(kernel->pfType == SecondChance)
+				pageTable[vpn].reference_bit = FALSE; //for second chance algo.
 			
 			kernel->vm_Disk->ReadSector(pageTable[vpn].virtualPage, buf);
 			bcopy(buf,&mainMemory[j*PageSize],PageSize);
@@ -246,33 +248,38 @@ Machine::Translate(int virtAddr, int* physAddr, int size, bool writing)
 			buf_2 = new char[PageSize];
 		
 			//Random
-			victim = (rand()%32);
-		
+			if(kernel->pfType == Random)
+				victim = (rand()%32);
 			//Fifo
-			// victim = fifo%32;
+			else if(kernel->pfType == FCFS)
+				victim = fifo%32;
 			
 			//LRU
-			/*
-			int min = pageTable[0].count;
-			victim=0;
-			for(int ccount=0;ccount<32;ccount++){
-					if(min > pageTable[ccount].count){
-						min = pageTable[ccount].count;
-						victim = ccount;
-						
-					}
-			} 
-			pageTable[victim].count++;  
-			*/
+			else if(kernel->pfType == LRU){
+				int min = pageTable[0].count;
+				victim=0;
+				for(int ccount=0;ccount<32;ccount++){
+						if(min > pageTable[ccount].count){
+							min = pageTable[ccount].count;
+							victim = ccount;
+							
+						}
+				} 
+				pageTable[victim].count++;
+			}
+			  
+			
 			
 			//Second chance
-			/* 
-			victim = fifo % 32;
-			while(pageTable[victim].reference_bit == true)
-						fifo++;      //find reference_bit is FALSE,and it can be replaced
+			else if(kernel->pfType == SecondChance){
+				victim = fifo % 32;
+				while(pageTable[victim].reference_bit == true)
+					fifo++;      //find reference_bit is FALSE,and it can be replaced
 		
-			pageTable[victim].reference_bit = true;        //not be replaced
-			*/                                          
+				pageTable[victim].reference_bit = true;        //not be replaced
+			}
+			
+			                                        
 			
 			
 			printf("Number = %d page swap out\n",victim);

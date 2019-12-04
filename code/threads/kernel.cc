@@ -26,7 +26,7 @@ ThreadedKernel::ThreadedKernel(int argc, char **argv)
 {
     randomSlice = FALSE; 
     type = RR;
-
+    pfType = FCFS;
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-rs") == 0) {
  	        ASSERT(i + 1 < argc);
@@ -48,7 +48,20 @@ ThreadedKernel::ThreadedKernel(int argc, char **argv)
             type = SJF;
         } else if(strcmp(argv[i], "-SRTF") == 0){
             type = SRTF;
+        } 
+
+
+        else if(strcmp(argv[i], "-FIFO") == 0) {
+            pfType = FCFS;
+        } else if (strcmp(argv[i], "-LRU") == 0) {
+            pfType = LRU;
+        } else if (strcmp(argv[i], "-Random") == 0) {
+            pfType = Random;
+        } else if (strcmp(argv[i], "-SecondChance") == 0) {
+            pfType = SecondChance;
         }
+        
+
         
     }
 }
