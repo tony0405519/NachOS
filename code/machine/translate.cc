@@ -216,8 +216,96 @@ Machine::Translate(int virtAddr, int* physAddr, int size, bool writing)
 	    DEBUG(dbgAddr, "Illegal virtual page # " << virtAddr);
 	    return AddressErrorException;
 	} else if (!pageTable[vpn].valid) {
-	    DEBUG(dbgAddr, "Invalid virtual page # " << virtAddr);
-	    return PageFaultException;
+	    // DEBUG(dbgAddr, "Invalid virtual page # " << virtAddr);
+	    // return PageFaultException;
+		printf("page fault\n");
+		kernel->stats->numPageFaults++;
+		j=0;
+		while(kernel->machine->usedPhyPage[j]!=FALSE&&j<NumPhysPages){j++;}
+			//add the page into the main memory if the main memory isn't full
+		if(j<NumPhysPages){ 
+			char *buf; //save page temporary
+			buf = new char[PageSize];
+			kernel->machine->usedPhyPage[j]=TRUE;
+			kernel->machine->PhyPageName[j]=pageTable[vpn].ID;
+		
+			kernel->machine->main_tab[j]=&pageTable[vpn];
+			pageTable[vpn].physicalPage = j;
+			pageTable[vpn].valid = TRUE;
+			// pageTable[vpn].count++; //for LRU
+			// pageTable[vpn].reference_bit = FALSE; //for second chance algo.
+			
+			kernel->vm_Disk->ReadSector(pageTable[vpn].virtualPage, buf);
+			bcopy(buf,&mainMemory[j*PageSize],PageSize);
+			
+		}
+		else{
+			char *buf_1;
+			buf_1 = new char[PageSize];
+			char *buf_2;
+			buf_2 = new char[PageSize];
+		
+			//Random
+			victim = (rand()%32);
+		
+			//Fifo
+			// victim = fifo%32;
+			
+			//LRU
+			/*
+			int min = pageTable[0].count;
+			victim=0;
+			for(int ccount=0;ccount<32;ccount++){
+					if(min > pageTable[ccount].count){
+						min = pageTable[ccount].count;
+						victim = ccount;
+						
+					}
+			} 
+			pageTable[victim].count++;  
+			*/
+			
+			//Second chance
+			/* 
+			victim = fifo % 32;
+			while(pageTable[victim].reference_bit == true)
+						fifo++;      //find reference_bit is FALSE,and it can be replaced
+		
+			pageTable[victim].reference_bit = true;        //not be replaced
+			*/                                          
+			
+			
+			printf("Number = %d page swap out\n",victim);
+
+			//get the page victm and save in the disk
+			bcopy(&mainMemory[victim*PageSize],buf_1,PageSize);
+			kernel->vm_Disk->ReadSector(pageTable[vpn].virtualPage, buf_2);
+			bcopy(buf_2,&mainMemory[victim*PageSize],PageSize);
+			kernel->vm_Disk->WriteSector(pageTable[vpn].virtualPage,buf_1);
+			
+			main_tab[victim]->virtualPage=pageTable[vpn].virtualPage;
+			main_tab[victim]->valid=FALSE;
+
+			
+			
+			//save the page into the main memory
+		
+
+			pageTable[vpn].valid = TRUE;
+			pageTable[vpn].physicalPage=victim;
+			kernel->machine->PhyPageName[victim]=pageTable[vpn].ID;
+			main_tab[victim]=&pageTable[vpn];
+		// fifo = fifo + 1;               //for fifo
+			printf("page replacement finished\n");
+	
+	
+		
+
+		
+		}
+
+
+	    //return PageFaultException;
 	}
 	entry = &pageTable[vpn];
     } else {
