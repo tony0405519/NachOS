@@ -295,7 +295,7 @@ Machine::Translate(int virtAddr, int* physAddr, int size, bool writing)
 			pageTable[vpn].physicalPage=victim;
 			kernel->machine->PhyPageName[victim]=pageTable[vpn].ID;
 			main_tab[victim]=&pageTable[vpn];
-		// fifo = fifo + 1;               //for fifo
+			// fifo = fifo + 1;               //for fifo
 			printf("page replacement finished\n");
 	
 	
