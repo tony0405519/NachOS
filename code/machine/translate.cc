@@ -32,6 +32,8 @@
 #include "copyright.h"
 #include "main.h"
 
+int TranslationEntry::timer = 0;
+
 // Routines for converting Words and Short Words to and from the
 // simulated machine's format of little endian.  These end up
 // being NOPs when the host machine is also little endian (DEC and Intel).
@@ -190,7 +192,7 @@ Machine::Translate(int virtAddr, int* physAddr, int size, bool writing)
     unsigned int pageFrame;
 
 	int victim;///find the page victim
-    int fifo;//For fifo
+    static int fifo = 0;//For fifo
 
     unsigned int j;
 
@@ -232,8 +234,10 @@ Machine::Translate(int virtAddr, int* physAddr, int size, bool writing)
 			kernel->machine->main_tab[j]=&pageTable[vpn];
 			pageTable[vpn].physicalPage = j;
 			pageTable[vpn].valid = TRUE;
-			if(kernel->pfType == LRU)
-				pageTable[vpn].count++; //for LRU
+			if(kernel->pfType == LRU){
+				pageTable[vpn].count = TranslationEntry::timer; //for LRU
+				TranslationEntry::timer++;
+			}
 			else if(kernel->pfType == SecondChance)
 				pageTable[vpn].reference_bit = FALSE; //for second chance algo.
 			
@@ -262,12 +266,14 @@ Machine::Translate(int virtAddr, int* physAddr, int size, bool writing)
 						if(min > pageTable[ccount].count){
 							min = pageTable[ccount].count;
 							victim = ccount;
-							
 						}
+						printf("%d ", pageTable[ccount].count);
 				} 
-				pageTable[victim].count++;
+				pageTable[victim].count = TranslationEntry::timer;
+				TranslationEntry::timer++;
 			}
-			  
+			
+			// printf("timer = %d\n",TranslationEntry::timer);
 			
 			
 			//Second chance
@@ -302,7 +308,10 @@ Machine::Translate(int virtAddr, int* physAddr, int size, bool writing)
 			pageTable[vpn].physicalPage=victim;
 			kernel->machine->PhyPageName[victim]=pageTable[vpn].ID;
 			main_tab[victim]=&pageTable[vpn];
-			// fifo = fifo + 1;               //for fifo
+			if(kernel->pfType == FCFS){
+				fifo = fifo + 1;               //for fifo
+			}
+			
 			printf("page replacement finished\n");
 	
 	

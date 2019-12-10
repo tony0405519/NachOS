@@ -167,7 +167,8 @@ AddrSpace::Load(char *fileName)
                 pageTable[i].dirty = FALSE;
                 pageTable[i].readOnly = FALSE;
                 pageTable[i].ID =ID;
-                pageTable[i].count++; //for LRU,count+1 when save in memory
+                pageTable[i].count = TranslationEntry::timer; //for LRU,count+1 when save in memory // change
+                TranslationEntry::timer++;
                 pageTable[i].reference_bit=FALSE; //for second chance algo. 
                 executable->ReadAt(&(kernel->machine->mainMemory[j*PageSize]),PageSize, noffH.code.inFileAddr+(i*PageSize));  
             }

@@ -50,6 +50,8 @@ class TranslationEntry {
     bool reference_bit; //for second chance algo.
    
     int ID;
+
+    static int timer;
 };
 
 #endif
