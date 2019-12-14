@@ -2,9 +2,9 @@
 
 main()
 {
-    int n;
-    for (n=20;n<30;n++){
+	int	n;
+	for (n=60; n>50; n--){
         PrintInt(n);
-    }
-        
+	}
+		
 }

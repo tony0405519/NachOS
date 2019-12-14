@@ -104,8 +104,8 @@ AddrSpace::~AddrSpace()
 bool 
 AddrSpace::Load(char *fileName) 
 {
-    DEBUG(dbgPage,"AddrSpace::Load " << kernel->currentThread->getName())
-    DEBUG(dbgThread,"AddrSpace::Load " << kernel->currentThread->getName())
+    DEBUG(dbgPage,"AddrSpace::Load " << t->getName())
+    DEBUG(dbgThread,"AddrSpace::Load " << t->getName())
     OpenFile *executable = kernel->fileSystem->Open(fileName);
     NoffHeader noffH;
     unsigned int size, k;
