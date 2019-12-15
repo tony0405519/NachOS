@@ -191,9 +191,9 @@ AddrSpace::Load(char *fileName)
                 pageTable[i].readOnly = FALSE;
                 pageTable[i].ID =ID;
                 executable->ReadAt(buf,PageSize, noffH.code.inFileAddr+(i*PageSize));
-		DEBUG(dbgPage,"Mem is full, write virtual page " << i << " in disk frame " << k << ". " 
+		DEBUG(dbgPage,"Mem is full, write thread page " << i << " in disk frame " << k << ". " 
 		<< kernel->currentThread->getName() << " total pages " << numPages)
-                DEBUG(dbgThread,"Mem is full, write virtual page " << i << " in disk frame " << k << ". " 
+                DEBUG(dbgThread,"Mem is full, write thread page " << i << " in disk frame " << k << ". " 
 		<< kernel->currentThread->getName() << " total pages " << numPages)
 		kernel->vm_Disk->WriteSector(k,buf); //call virtual_disk write in virtual memory
                 

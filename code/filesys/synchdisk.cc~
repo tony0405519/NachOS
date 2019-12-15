@@ -60,7 +60,7 @@ void
 SynchDisk::ReadSector(int sectorNumber, char* data)
 {
     lock->Acquire();			// only one disk I/O at a time
-    DEBUG(dbgPage,"Thread " << kernel->currentThread->getName() << " is reading Disk, sleep and wiat reading disk")
+    DEBUG(dbgPage,"disk->ReadRequest(sectorNumber, data)")
     disk->ReadRequest(sectorNumber, data);
     semaphore->P();			// wait for interrupt
     lock->Release();
@@ -79,9 +79,11 @@ void
 SynchDisk::WriteSector(int sectorNumber, char* data)
 {
     lock->Acquire();			// only one disk I/O at a time
-    DEBUG(dbgPage,"Thread " << kernel->currentThread->getName() << " is writing Disk, sleep and wiat writing disk")
+    DEBUG(dbgPage,"disk->WriteRequest(sectorNumber, data)")
     disk->WriteRequest(sectorNumber, data);
     semaphore->P();			// wait for interrupt
+    //DEBUG(dbgPage,"Release lock in SyncDisk, currentThread: " <<kernel->currentThread->getName())
+    //DEBUG(dbgThread,"Release lock in SyncDisk, currentThread: " <<kernel->currentThread->getName())
     lock->Release();
 }
 

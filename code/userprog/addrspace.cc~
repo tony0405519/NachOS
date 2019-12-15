@@ -104,8 +104,8 @@ AddrSpace::~AddrSpace()
 bool 
 AddrSpace::Load(char *fileName) 
 {
-    DEBUG(dbgPage,"AddrSpace::Load " << t->getName())
-    DEBUG(dbgThread,"AddrSpace::Load " << t->getName())
+    DEBUG(dbgPage,"AddrSpace::Load " << kernel->currentThread->getName())
+    DEBUG(dbgThread,"AddrSpace::Load " << kernel->currentThread->getName())
     OpenFile *executable = kernel->fileSystem->Open(fileName);
     NoffHeader noffH;
     unsigned int size, k;
@@ -164,6 +164,7 @@ AddrSpace::Load(char *fileName)
                 kernel->machine->PhyPageName[j]=ID;
                 kernel->machine->main_tab[j]=&pageTable[i];
                 pageTable[i].physicalPage = j;
+		//pageTable[i].virtualPage=i;
                 pageTable[i].valid = TRUE;
                 pageTable[i].use = FALSE;
                 pageTable[i].dirty = FALSE;
@@ -191,9 +192,9 @@ AddrSpace::Load(char *fileName)
                 pageTable[i].readOnly = FALSE;
                 pageTable[i].ID =ID;
                 executable->ReadAt(buf,PageSize, noffH.code.inFileAddr+(i*PageSize));
-		DEBUG(dbgPage,"Mem is full, write virtual page " << i << " in disk frame " << k << ". " 
+		DEBUG(dbgPage,"Mem is full, write thread page " << i << " in disk frame " << k << ". " 
 		<< kernel->currentThread->getName() << " total pages " << numPages)
-                DEBUG(dbgThread,"Mem is full, write virtual page " << i << " in disk frame " << k << ". " 
+                DEBUG(dbgThread,"Mem is full, write thread page " << i << " in disk frame " << k << ". " 
 		<< kernel->currentThread->getName() << " total pages " << numPages)
 		kernel->vm_Disk->WriteSector(k,buf); //call virtual_disk write in virtual memory
                 

@@ -32,7 +32,7 @@
 #include "copyright.h"
 #include "main.h"
 
-int TranslationEntry::timer = 0;
+unsigned int TranslationEntry::timer = 0;
 
 // Routines for converting Words and Short Words to and from the
 // simulated machine's format of little endian.  These end up
@@ -254,31 +254,33 @@ Machine::Translate(int virtAddr, int* physAddr, int size, bool writing)
 		
 			//Random
 			if(kernel->pfType == Random)
-				victim = (rand()%32);
+				victim = (rand()%NumPhysPages);
 			//Fifo
 			else if(kernel->pfType == FCFS)
-				victim = fifo%32;
+				victim = fifo%NumPhysPages;
 			
 			//LRU
 			else if(kernel->pfType == LRU){
-				int min = pageTable[0].count;
+				unsigned int min = main_tab[0]->count;
 				victim=0;
-				for(int ccount=0;ccount<kernel->currentThread->space->getNumberOfPage();ccount++){
-						if(min > pageTable[ccount].count){
-							min = pageTable[ccount].count;
-							victim = ccount;
-						}
-						printf("%d ", pageTable[ccount].count);
+				PrintMainPageState();
+				for(int ccount=0;ccount<NumPhysPages ;ccount++){
+					if(min > main_tab[ccount]->count){
+						min = main_tab[ccount]->count;
+						victim = ccount;
+					}
 				} 
-				pageTable[victim].count = TranslationEntry::timer;
+				
+				pageTable[vpn].count = TranslationEntry::timer;
 				TranslationEntry::timer++;
+				printf("\n");
 			}
 			
 			
 			//Second chance
 			else if(kernel->pfType == SecondChance){
-				victim = fifo % 32;
-				while(pageTable[victim].reference_bit == true)
+				victim = fifo % NumPhysPages;
+				while(main_tab[victim]->reference_bit == true)
 					fifo++;      //find reference_bit is FALSE,and it can be replaced
 		
 				pageTable[victim].reference_bit = true;        //not be replaced
@@ -287,7 +289,7 @@ Machine::Translate(int virtAddr, int* physAddr, int size, bool writing)
 			                                        
 			
 			
-			printf("Victim = %d page swap out\n",victim);
+			printf("Victim Physical page %d swap out\n",victim);
 
 			//get the page victm and save in the disk
 			bcopy(&mainMemory[victim*PageSize],buf_1,PageSize);
@@ -311,7 +313,7 @@ Machine::Translate(int virtAddr, int* physAddr, int size, bool writing)
 				fifo = fifo + 1;               //for fifo
 			}
 			
-			printf("page replacement finished\n");
+			printf("page replacement finished\n\n");
 	
 	
 		
@@ -319,10 +321,18 @@ Machine::Translate(int virtAddr, int* physAddr, int size, bool writing)
 		
 		}
 
-
+		
 	    //return PageFaultException;
+	} 
+	// 就算沒有page fault,只要access這個page就要更新timer
+	else {
+		pageTable[vpn].count = TranslationEntry::timer;
+		TranslationEntry::timer++;
 	}
+
 	entry = &pageTable[vpn];
+
+	
     } else {
         for (entry = NULL, i = 0; i < TLBSize; i++)
     	    if (tlb[i].valid && (tlb[i].virtualPage == vpn)) {
@@ -356,4 +366,23 @@ Machine::Translate(int virtAddr, int* physAddr, int size, bool writing)
     ASSERT((*physAddr >= 0) && ((*physAddr + size) <= MemorySize));
     DEBUG(dbgAddr, "phys addr = " << *physAddr);
     return NoException;
+}
+
+void Machine::PrintMainPageState()
+{
+	printf("recently page usage in main memory\n");
+	printf("%10s","Thread ID");
+	for(int ccount=0;ccount<NumPhysPages/2 ;ccount++)
+		printf("%7d",main_tab[ccount]->ID);
+	printf("\n%10s","Recent Use");
+	for(int ccount=0;ccount<NumPhysPages/2 ;ccount++)
+		printf("%7d", main_tab[ccount]->count);
+	
+
+	printf("\n%10s"," ");
+	for(int ccount=NumPhysPages/2;ccount<NumPhysPages ;ccount++)
+		printf("%7d",main_tab[ccount]->ID);
+	printf("\n%10s"," ");
+	for(int ccount=NumPhysPages/2;ccount<NumPhysPages ;ccount++)
+		printf("%7d",main_tab[ccount]->count);
 }
